@@ -13,12 +13,12 @@ typedef enum {
     GameStateGameOver,
 } GameState;
 
-#define WIDTH 5
-#define HEIGHT 5
+#define WIDTH 20
+#define HEIGHT 20
 
 typedef struct {
-    uint16_t universe[HEIGHT][WIDTH];
-    uint16_t len;
+    uint8_t universe[HEIGHT][WIDTH];
+    uint8_t len;
     GameState state;
 } GameOfLifeState;
 
@@ -44,9 +44,9 @@ static void game_of_life_render_callback(Canvas* const canvas, void* ctx) {
     canvas_draw_frame(canvas, 0, 0, 128, 64);
 
     // Points
-    for(uint16_t y = 0; y < HEIGHT; y++) {
-        for(uint16_t x = 0; x < WIDTH; x++) {
-            uint16_t state = game_of_life_state->universe[y][x];
+    for(uint8_t y = 0; y < HEIGHT; y++) {
+        for(uint8_t x = 0; x < WIDTH; x++) {
+            uint8_t state = game_of_life_state->universe[y][x];
             if (state != 0) {
                 canvas_draw_box(canvas, x+1,y+1, 1, 1);
                 // canvas_draw_dot(canvas, x+1, y+1);
@@ -90,42 +90,39 @@ static void game_of_life_update_timer_callback(FuriMessageQueue* event_queue) {
     furi_message_queue_put(event_queue, &event, 0);
 }
 
-// static void game_of_life_evolve(void *u, int w, int h)
-// {
-//     // inspiration: https://rosettacode.org/wiki/Conway%27s_Game_of_Life#C
-// 	unsigned (*univ)[w] = u;
-// 	unsigned new[h][w];
+static void game_of_life_evolve(void *u)
+{
+    // inspiration: https://rosettacode.org/wiki/Conway%27s_Game_of_Life#C
+	uint8_t (*univ)[WIDTH] = u;
+	uint8_t new[HEIGHT][WIDTH];
  
-// 	for (int y = 0; y < h; y++) for (int x = 0; x < w; x++) {
-// 		int n = 0;
-// 		for (int y1 = y - 1; y1 <= y + 1; y1++)
-// 			for (int x1 = x - 1; x1 <= x + 1; x1++)
-// 				if (univ[(y1 + h) % h][(x1 + w) % w])
-// 					n++;
- 
-// 		if (univ[y][x]) n--;
-// 		new[y][x] = (n == 3 || (n == 2 && univ[y][x]));
-// 	}
-// 	for (int y = 0; y < h; y++) {
-//         for (int x = 0; x < w; x++) {
-//             univ[y][x] = new[y][x];
-//         }
-//     }
-// }
+	for (uint8_t y = 0; y < HEIGHT; y++) {
+        for (uint8_t x = 0; x < WIDTH; x++) {
+		    uint8_t n = 0;
+            for (uint8_t y1 = y - 1; y1 <= y + 1; y1++) {
+                for (uint8_t x1 = x - 1; x1 <= x + 1; x1++)
+                    if (univ[(y1 + HEIGHT) % HEIGHT][(x1 + WIDTH) % WIDTH]) {
+                        n++;
+                    }
+            }
+            if (univ[y][x]) {
+                n--;
+            }
+		    new[y][x] = (n == 3 || (n == 2 && univ[y][x]));
+        }
+    }
+	for (uint8_t y = 0; y < HEIGHT; y++) {
+        for (uint8_t x = 0; x < WIDTH; x++) {
+            univ[y][x] = new[y][x];
+        }
+    }
+}
 
 static void game_of_life_init_game(GameOfLifeState* const game_of_life_state) {
-    // uint16_t disp[HEIGHT][WIDTH] = {
-    //     {0, 0, 0, 0, 0},
-    //     {0, 1, 1, 1, 0},
-    //     {0, 1, 1, 1, 0},
-    //     {0, 1, 1, 1, 0},
-    //     {0, 0, 0, 0, 0},
-    // };
-    uint16_t disp[HEIGHT][WIDTH];
-    for (uint16_t y=0; y<HEIGHT; y++) {
-        for (uint16_t x=0; x<WIDTH; x++) {
+    uint8_t disp[HEIGHT][WIDTH];
+    for (uint8_t y=0; y<HEIGHT; y++) {
+        for (uint8_t x=0; x<WIDTH; x++) {
             disp[y][x] = rand() % 2;
-            // disp[y][x] = 1;
         }
     }
     memcpy(&game_of_life_state->universe[0][0], &disp[0][0], WIDTH*HEIGHT*sizeof(disp[0][0]));
@@ -137,15 +134,17 @@ static void game_of_life_process_game_step(GameOfLifeState* const game_of_life_s
         return;
     }
 
-    for(uint16_t y = 0; y < HEIGHT; y++) {
-        for(uint16_t x = 0; x < WIDTH; x++) {
-            if (game_of_life_state->universe[y][x] == 0) {
-                game_of_life_state->universe[y][x] = 1;
-            } else {
-                game_of_life_state->universe[y][x] = 0;
-            }
-        }
-    }
+    game_of_life_evolve(game_of_life_state->universe);
+
+    // for(uint8_t y = 0; y < HEIGHT; y++) {
+    //     for(uint8_t x = 0; x < WIDTH; x++) {
+    //         if (game_of_life_state->universe[y][x] == 0) {
+    //             game_of_life_state->universe[y][x] = 1;
+    //         } else {
+    //             game_of_life_state->universe[y][x] = 0;
+    //         }
+    //     }
+    // }
 }
 
 int32_t game_of_life_app(void* p) {
@@ -170,7 +169,7 @@ int32_t game_of_life_app(void* p) {
 
     FuriTimer* timer =
         furi_timer_alloc(game_of_life_update_timer_callback, FuriTimerTypePeriodic, event_queue);
-    furi_timer_start(timer, furi_kernel_get_tick_frequency() / 4);
+    furi_timer_start(timer, furi_kernel_get_tick_frequency() / 8);
 
     // Open GUI and register view_port
     Gui* gui = furi_record_open(RECORD_GUI);
