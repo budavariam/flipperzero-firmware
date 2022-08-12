@@ -186,6 +186,7 @@ int32_t game_of_life_app(void* p) {
                 if(event.input.type == InputTypePress) {
                     switch(event.input.key) {
                     case InputKeyUp:
+                        game_of_life_state->state = GameStateGameOver;
                         break;
                     case InputKeyDown:
                         break;
