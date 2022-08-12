@@ -37,6 +37,7 @@ void evolve(void *u, int w, int h)
  
 void game(int w, int h)
 {
+    // inspiration: https://rosettacode.org/wiki/Conway%27s_Game_of_Life#C
 	unsigned univ[h][w];
 	for_xy univ[y][x] = rand() < RAND_MAX / 10 ? 1 : 0;
 	while (1) {
