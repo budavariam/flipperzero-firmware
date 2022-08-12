@@ -132,6 +132,7 @@ static void game_of_life_init_game(GameOfLifeState* const game_of_life_state) {
     }
     memcpy(&game_of_life_state->universe[0][0], &disp[0][0], WIDTH*HEIGHT*sizeof(disp[0][0]));
     game_of_life_state->state = GameStateLife;
+    game_of_life_state->iteration = 0;
 }
 
 static void game_of_life_process_game_step(GameOfLifeState* const game_of_life_state) {
