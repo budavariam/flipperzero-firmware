@@ -1,5 +1,7 @@
 # DEV
 
+If anything goes wrong: hard reset is left+back. You're welcome.
+
 ## Create new application
 
 [dev plugin](./DEV-plugin-tutorial.md)
