@@ -18,7 +18,7 @@ typedef enum {
 
 typedef struct {
     uint8_t universe[HEIGHT][WIDTH];
-    uint8_t len;
+    uint8_t iteration;
     GameState state;
 } GameOfLifeState;
 
@@ -68,8 +68,8 @@ static void game_of_life_render_callback(Canvas* const canvas, void* ctx) {
         canvas_draw_str(canvas, 37, 31, "Game Over");
 
         canvas_set_font(canvas, FontSecondary);
-        char buffer[12];
-        snprintf(buffer, sizeof(buffer), "Score: %u", game_of_life_state->len - 7);
+        char buffer[15];
+        snprintf(buffer, sizeof(buffer), "Iteration: %u", game_of_life_state->iteration);
         canvas_draw_str_aligned(canvas, 64, 41, AlignCenter, AlignBottom, buffer);
     }
 
@@ -90,12 +90,13 @@ static void game_of_life_update_timer_callback(FuriMessageQueue* event_queue) {
     furi_message_queue_put(event_queue, &event, 0);
 }
 
-static void game_of_life_evolve(void *u)
+static bool game_of_life_evolve(void *u)
 {
     // inspiration: https://rosettacode.org/wiki/Conway%27s_Game_of_Life#C
 	uint8_t (*univ)[WIDTH] = u;
 	uint8_t new[HEIGHT][WIDTH];
- 
+    uint8_t cntAlive = 0;
+
 	for (uint8_t y = 0; y < HEIGHT; y++) {
         for (uint8_t x = 0; x < WIDTH; x++) {
 		    uint8_t n = 0;
@@ -113,9 +114,13 @@ static void game_of_life_evolve(void *u)
     }
 	for (uint8_t y = 0; y < HEIGHT; y++) {
         for (uint8_t x = 0; x < WIDTH; x++) {
+            if (new[y][x] > 0) {
+                cntAlive++;
+            } 
             univ[y][x] = new[y][x];
         }
     }
+    return cntAlive == 0;
 }
 
 static void game_of_life_init_game(GameOfLifeState* const game_of_life_state) {
@@ -134,7 +139,11 @@ static void game_of_life_process_game_step(GameOfLifeState* const game_of_life_s
         return;
     }
 
-    game_of_life_evolve(game_of_life_state->universe);
+    bool isOver = game_of_life_evolve(game_of_life_state->universe);
+    if (isOver) {
+        game_of_life_state->state = GameStateGameOver;
+    }
+    game_of_life_state->iteration = game_of_life_state->iteration+1 % 256 ;
 }
 
 int32_t game_of_life_app(void* p) {
