@@ -38,5 +38,6 @@ App(
         "snake_game",
         "bt_hid",
         "hello_world",
+        "game_of_life",
     ],
 )
