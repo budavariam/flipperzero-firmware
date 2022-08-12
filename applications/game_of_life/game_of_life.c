@@ -3,10 +3,6 @@
 #include <input/input.h>
 #include <stdlib.h>
 
-typedef struct {
-    uint8_t x;
-    uint8_t y;
-} Point;
 
 typedef enum {
     GameStateLife,
