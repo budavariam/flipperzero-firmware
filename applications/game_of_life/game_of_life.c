@@ -90,21 +90,44 @@ static void game_of_life_update_timer_callback(FuriMessageQueue* event_queue) {
     furi_message_queue_put(event_queue, &event, 0);
 }
 
+// static void game_of_life_evolve(void *u, int w, int h)
+// {
+//     // inspiration: https://rosettacode.org/wiki/Conway%27s_Game_of_Life#C
+// 	unsigned (*univ)[w] = u;
+// 	unsigned new[h][w];
+ 
+// 	for (int y = 0; y < h; y++) for (int x = 0; x < w; x++) {
+// 		int n = 0;
+// 		for (int y1 = y - 1; y1 <= y + 1; y1++)
+// 			for (int x1 = x - 1; x1 <= x + 1; x1++)
+// 				if (univ[(y1 + h) % h][(x1 + w) % w])
+// 					n++;
+ 
+// 		if (univ[y][x]) n--;
+// 		new[y][x] = (n == 3 || (n == 2 && univ[y][x]));
+// 	}
+// 	for (int y = 0; y < h; y++) {
+//         for (int x = 0; x < w; x++) {
+//             univ[y][x] = new[y][x];
+//         }
+//     }
+// }
+
 static void game_of_life_init_game(GameOfLifeState* const game_of_life_state) {
-    uint16_t disp[HEIGHT][WIDTH] = {
-        {0, 0, 0, 0, 0},
-        {0, 1, 1, 1, 0},
-        {0, 1, 1, 1, 0},
-        {0, 1, 1, 1, 0},
-        {0, 0, 0, 0, 0},
-    };
-    // uint16_t disp[HEIGHT][WIDTH];
-    // for (uint16_t y=0; y<HEIGHT; y++) {
-    //     for (uint16_t x=0; x<WIDTH; x++) {
-    //         // disp[y][x] = (rand() % 2);
-    //         disp[y][x] = 1;
-    //     }
-    // }
+    // uint16_t disp[HEIGHT][WIDTH] = {
+    //     {0, 0, 0, 0, 0},
+    //     {0, 1, 1, 1, 0},
+    //     {0, 1, 1, 1, 0},
+    //     {0, 1, 1, 1, 0},
+    //     {0, 0, 0, 0, 0},
+    // };
+    uint16_t disp[HEIGHT][WIDTH];
+    for (uint16_t y=0; y<HEIGHT; y++) {
+        for (uint16_t x=0; x<WIDTH; x++) {
+            disp[y][x] = rand() % 2;
+            // disp[y][x] = 1;
+        }
+    }
     memcpy(&game_of_life_state->universe[0][0], &disp[0][0], WIDTH*HEIGHT*sizeof(disp[0][0]));
     game_of_life_state->state = GameStateLife;
 }
