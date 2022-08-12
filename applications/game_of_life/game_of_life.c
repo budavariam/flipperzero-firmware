@@ -13,8 +13,8 @@ typedef enum {
     GameStateGameOver,
 } GameState;
 
-#define WIDTH 20
-#define HEIGHT 20
+#define WIDTH 31
+#define HEIGHT 15
 
 typedef struct {
     uint8_t universe[HEIGHT][WIDTH];
@@ -48,7 +48,7 @@ static void game_of_life_render_callback(Canvas* const canvas, void* ctx) {
         for(uint8_t x = 0; x < WIDTH; x++) {
             uint8_t state = game_of_life_state->universe[y][x];
             if (state != 0) {
-                canvas_draw_box(canvas, x+1,y+1, 1, 1);
+                canvas_draw_box(canvas, 2+4*x,2+4*y, 4, 4);
                 // canvas_draw_dot(canvas, x+1, y+1);
             }
         }
@@ -135,16 +135,6 @@ static void game_of_life_process_game_step(GameOfLifeState* const game_of_life_s
     }
 
     game_of_life_evolve(game_of_life_state->universe);
-
-    // for(uint8_t y = 0; y < HEIGHT; y++) {
-    //     for(uint8_t x = 0; x < WIDTH; x++) {
-    //         if (game_of_life_state->universe[y][x] == 0) {
-    //             game_of_life_state->universe[y][x] = 1;
-    //         } else {
-    //             game_of_life_state->universe[y][x] = 0;
-    //         }
-    //     }
-    // }
 }
 
 int32_t game_of_life_app(void* p) {
@@ -169,7 +159,7 @@ int32_t game_of_life_app(void* p) {
 
     FuriTimer* timer =
         furi_timer_alloc(game_of_life_update_timer_callback, FuriTimerTypePeriodic, event_queue);
-    furi_timer_start(timer, furi_kernel_get_tick_frequency() / 8);
+    furi_timer_start(timer, furi_kernel_get_tick_frequency() / 2); // the larger the number the slower it is
 
     // Open GUI and register view_port
     Gui* gui = furi_record_open(RECORD_GUI);
