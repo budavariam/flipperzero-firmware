@@ -9,11 +9,12 @@ typedef enum {
     GameStateGameOver,
 } GameState;
 
-#define WIDTH 31
-#define HEIGHT 15
+#define DOT_SIZE 2
+#define WIDTH ((128 / DOT_SIZE) - 1) // 4:31
+#define HEIGHT ((64 / DOT_SIZE) - 1) // 4:15
 
 typedef struct {
-    uint8_t universe[HEIGHT][WIDTH];
+    bool universe[HEIGHT][WIDTH];
     uint8_t iteration;
     GameState state;
 } GameOfLifeState;
@@ -42,9 +43,9 @@ static void game_of_life_render_callback(Canvas* const canvas, void* ctx) {
     // Points
     for(uint8_t y = 0; y < HEIGHT; y++) {
         for(uint8_t x = 0; x < WIDTH; x++) {
-            uint8_t state = game_of_life_state->universe[y][x];
-            if (state != 0) {
-                canvas_draw_box(canvas, 2+4*x,2+4*y, 4, 4);
+            bool state = game_of_life_state->universe[y][x];
+            if (state != false) {
+                canvas_draw_box(canvas, 2+DOT_SIZE*x,2+DOT_SIZE*y, DOT_SIZE, DOT_SIZE);
                 // canvas_draw_dot(canvas, x+1, y+1);
             }
         }
@@ -89,8 +90,8 @@ static void game_of_life_update_timer_callback(FuriMessageQueue* event_queue) {
 static bool game_of_life_evolve(void *u)
 {
     // inspiration: https://rosettacode.org/wiki/Conway%27s_Game_of_Life#C
-	uint8_t (*univ)[WIDTH] = u;
-	uint8_t new[HEIGHT][WIDTH];
+	bool (*univ)[WIDTH] = u;
+	bool new[HEIGHT][WIDTH];
     uint8_t cntAlive = 0;
 
 	for (uint8_t y = 0; y < HEIGHT; y++) {
@@ -98,14 +99,14 @@ static bool game_of_life_evolve(void *u)
 		    uint8_t n = 0;
             for (uint8_t y1 = y - 1; y1 <= y + 1; y1++) {
                 for (uint8_t x1 = x - 1; x1 <= x + 1; x1++)
-                    if (univ[(y1 + HEIGHT) % HEIGHT][(x1 + WIDTH) % WIDTH]) {
+                    if (univ[(y1 + HEIGHT) % HEIGHT][(x1 + WIDTH) % WIDTH] == true) {
                         n++;
                     }
             }
-            if (univ[y][x]) {
+            if (univ[y][x] == true) {
                 n--;
             }
-		    new[y][x] = (n == 3 || (n == 2 && univ[y][x]));
+		    new[y][x] = (n == 3 || (n == 2 && univ[y][x])) == 0 ? false : true;
         }
     }
 	for (uint8_t y = 0; y < HEIGHT; y++) {
@@ -120,10 +121,10 @@ static bool game_of_life_evolve(void *u)
 }
 
 static void game_of_life_init_game(GameOfLifeState* const game_of_life_state) {
-    uint8_t disp[HEIGHT][WIDTH];
+    bool disp[HEIGHT][WIDTH];
     for (uint8_t y=0; y<HEIGHT; y++) {
         for (uint8_t x=0; x<WIDTH; x++) {
-            disp[y][x] = rand() % 2;
+            disp[y][x] = rand() % 2 == 0 ? true : false;
         }
     }
     memcpy(&game_of_life_state->universe[0][0], &disp[0][0], WIDTH*HEIGHT*sizeof(disp[0][0]));
