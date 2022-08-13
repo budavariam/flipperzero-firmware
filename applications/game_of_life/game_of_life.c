@@ -9,13 +9,13 @@ typedef enum {
     GameStateGameOver,
 } GameState;
 
-#define DOT_SIZE 2
-#define WIDTH ((128 / DOT_SIZE) - 1) // 4:31
-#define HEIGHT ((64 / DOT_SIZE) - 1) // 4:15
+#define DOT_SIZE 3
+#define WIDTH ((128 / DOT_SIZE) - 1)
+#define HEIGHT ((64 / DOT_SIZE) - 1)
 
 typedef struct {
     bool universe[HEIGHT][WIDTH];
-    uint8_t iteration;
+    uint32_t iteration;
     GameState state;
 } GameOfLifeState;
 
@@ -65,8 +65,8 @@ static void game_of_life_render_callback(Canvas* const canvas, void* ctx) {
         canvas_draw_str(canvas, 37, 31, "Game Over");
 
         canvas_set_font(canvas, FontSecondary);
-        char buffer[15];
-        snprintf(buffer, sizeof(buffer), "Iteration: %u", game_of_life_state->iteration);
+        char buffer[18];
+        snprintf(buffer, sizeof(buffer), "Iteration: %lu", game_of_life_state->iteration);
         canvas_draw_str_aligned(canvas, 64, 41, AlignCenter, AlignBottom, buffer);
     }
 
@@ -141,7 +141,12 @@ static void game_of_life_process_game_step(GameOfLifeState* const game_of_life_s
     if (isOver) {
         game_of_life_state->state = GameStateGameOver;
     }
-    game_of_life_state->iteration = game_of_life_state->iteration+1 % 256 ;
+    game_of_life_state->iteration = game_of_life_state->iteration+1; 
+    // NOTE: in C unsigned integers can not overflow, 
+    //     will be reduced to zero upon reachng the max possible value: 
+    //     
+    //     #include <limits.h>
+    //     UINT_MAX + 1 == 0; 
 }
 
 int32_t game_of_life_app(void* p) {
