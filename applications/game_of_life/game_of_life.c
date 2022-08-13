@@ -10,8 +10,11 @@ typedef enum {
 } GameState;
 
 #define DOT_SIZE 3
-#define WIDTH ((128 / DOT_SIZE) - 1)
-#define HEIGHT ((64 / DOT_SIZE) - 1)
+#define SCREEN_HEIGHT 64
+#define SCREEN_WIDTH 128
+
+#define WIDTH ((SCREEN_WIDTH / DOT_SIZE) - 1)
+#define HEIGHT ((SCREEN_HEIGHT / DOT_SIZE) - 1)
 
 typedef struct {
     bool universe[HEIGHT][WIDTH];
@@ -38,7 +41,7 @@ static void game_of_life_render_callback(Canvas* const canvas, void* ctx) {
     // Before the function is called, the state is set with the canvas_reset(canvas)
 
     // Frame
-    canvas_draw_frame(canvas, 0, 0, 128, 64);
+    canvas_draw_frame(canvas, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
     // Points
     for(uint8_t y = 0; y < HEIGHT; y++) {
@@ -230,7 +233,7 @@ int32_t game_of_life_app(void* p) {
     return 0;
 }
 
-// Screen is 128x64 px
+// Screen is 128x64 px, example for DOT_SIZE=4
 // (4 + 4) * 16 - 4 + 2 + 2border == 128
 // (4 + 4) * 8 - 4 + 2 + 2border == 64
 // Game field from point{x:  0, y: 0} to point{x: 30, y: 14}.
