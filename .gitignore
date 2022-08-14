@@ -50,3 +50,5 @@ build/
 
 # openocd output file
 openocd.log
+
+applications/*/a.out
