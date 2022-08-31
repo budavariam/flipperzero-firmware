@@ -2,6 +2,10 @@
 
 If anything goes wrong: hard reset is left+back. You're welcome.
 
+## Useful links
+
+[Python wrapper to control flipper](https://github.com/wh00hw/pyFlipper)
+
 ## Create new application
 
 [dev plugin](./DEV-plugin-tutorial.md)
