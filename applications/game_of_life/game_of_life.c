@@ -3,7 +3,6 @@
 #include <input/input.h>
 #include <stdlib.h>
 
-
 typedef enum {
     GameStateLife,
     GameStateGameOver,
@@ -47,13 +46,12 @@ static void game_of_life_render_callback(Canvas* const canvas, void* ctx) {
     for(uint8_t y = 0; y < HEIGHT; y++) {
         for(uint8_t x = 0; x < WIDTH; x++) {
             bool state = game_of_life_state->universe[y][x];
-            if (state != false) {
-                canvas_draw_box(canvas, 2+DOT_SIZE*x,2+DOT_SIZE*y, DOT_SIZE, DOT_SIZE);
+            if(state != false) {
+                canvas_draw_box(canvas, 2 + DOT_SIZE * x, 2 + DOT_SIZE * y, DOT_SIZE, DOT_SIZE);
                 // canvas_draw_dot(canvas, x+1, y+1);
             }
         }
     }
-
 
     // Game Over banner
     if(game_of_life_state->state == GameStateGameOver) {
@@ -90,33 +88,32 @@ static void game_of_life_update_timer_callback(FuriMessageQueue* event_queue) {
     furi_message_queue_put(event_queue, &event, 0);
 }
 
-static bool game_of_life_evolve(void *u)
-{
+static bool game_of_life_evolve(void* u) {
     // inspiration: https://rosettacode.org/wiki/Conway%27s_Game_of_Life#C
-	bool (*univ)[WIDTH] = u;
-	bool new[HEIGHT][WIDTH];
+    bool(*univ)[WIDTH] = u;
+    bool new[HEIGHT][WIDTH];
     uint8_t cntAlive = 0;
 
-	for (uint8_t y = 0; y < HEIGHT; y++) {
-        for (uint8_t x = 0; x < WIDTH; x++) {
-		    uint8_t n = 0;
-            for (uint8_t y1 = y - 1; y1 <= y + 1; y1++) {
-                for (uint8_t x1 = x - 1; x1 <= x + 1; x1++)
-                    if (univ[(y1 + HEIGHT) % HEIGHT][(x1 + WIDTH) % WIDTH] == true) {
+    for(uint8_t y = 0; y < HEIGHT; y++) {
+        for(uint8_t x = 0; x < WIDTH; x++) {
+            uint8_t n = 0;
+            for(uint8_t y1 = y - 1; y1 <= y + 1; y1++) {
+                for(uint8_t x1 = x - 1; x1 <= x + 1; x1++)
+                    if(univ[(y1 + HEIGHT) % HEIGHT][(x1 + WIDTH) % WIDTH] == true) {
                         n++;
                     }
             }
-            if (univ[y][x] == true) {
+            if(univ[y][x] == true) {
                 n--;
             }
-		    new[y][x] = (n == 3 || (n == 2 && univ[y][x])) == 0 ? false : true;
+            new[y][x] = (n == 3 || (n == 2 && univ[y][x])) == 0 ? false : true;
         }
     }
-	for (uint8_t y = 0; y < HEIGHT; y++) {
-        for (uint8_t x = 0; x < WIDTH; x++) {
-            if (new[y][x] > 0) {
+    for(uint8_t y = 0; y < HEIGHT; y++) {
+        for(uint8_t x = 0; x < WIDTH; x++) {
+            if(new[y][x] > 0) {
                 cntAlive++;
-            } 
+            }
             univ[y][x] = new[y][x];
         }
     }
@@ -125,12 +122,12 @@ static bool game_of_life_evolve(void *u)
 
 static void game_of_life_init_game(GameOfLifeState* const game_of_life_state) {
     bool disp[HEIGHT][WIDTH];
-    for (uint8_t y=0; y<HEIGHT; y++) {
-        for (uint8_t x=0; x<WIDTH; x++) {
+    for(uint8_t y = 0; y < HEIGHT; y++) {
+        for(uint8_t x = 0; x < WIDTH; x++) {
             disp[y][x] = rand() % 2 == 0 ? true : false;
         }
     }
-    memcpy(&game_of_life_state->universe[0][0], &disp[0][0], WIDTH*HEIGHT*sizeof(disp[0][0]));
+    memcpy(&game_of_life_state->universe[0][0], &disp[0][0], WIDTH * HEIGHT * sizeof(disp[0][0]));
     game_of_life_state->state = GameStateLife;
     game_of_life_state->iteration = 0;
 }
@@ -141,15 +138,15 @@ static void game_of_life_process_game_step(GameOfLifeState* const game_of_life_s
     }
 
     bool isOver = game_of_life_evolve(game_of_life_state->universe);
-    if (isOver) {
+    if(isOver) {
         game_of_life_state->state = GameStateGameOver;
     }
-    game_of_life_state->iteration = game_of_life_state->iteration+1; 
-    // NOTE: in C unsigned integers can not overflow, 
-    //     will be reduced to zero upon reachng the max possible value: 
-    //     
+    game_of_life_state->iteration = game_of_life_state->iteration + 1;
+    // NOTE: in C unsigned integers can not overflow,
+    //     will be reduced to zero upon reachng the max possible value:
+    //
     //     #include <limits.h>
-    //     UINT_MAX + 1 == 0; 
+    //     UINT_MAX + 1 == 0;
 }
 
 int32_t game_of_life_app(void* p) {
@@ -174,7 +171,8 @@ int32_t game_of_life_app(void* p) {
 
     FuriTimer* timer =
         furi_timer_alloc(game_of_life_update_timer_callback, FuriTimerTypePeriodic, event_queue);
-    furi_timer_start(timer, furi_kernel_get_tick_frequency() / 2); // the larger the number the slower it is
+    furi_timer_start(
+        timer, furi_kernel_get_tick_frequency() / 2); // the larger the number the slower it is
 
     // Open GUI and register view_port
     Gui* gui = furi_record_open(RECORD_GUI);

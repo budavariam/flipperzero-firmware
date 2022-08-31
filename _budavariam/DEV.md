@@ -44,3 +44,11 @@ python3 -m pip install -r scripts/requirements.txt
 # create updater package
 ./fbt updater_package
 ```
+
+### Publishing source code
+
+```bash
+# install clang format
+# brew install clang-format
+./fbt format
+```
